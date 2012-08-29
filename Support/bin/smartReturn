@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+
+my @file=();
+
+while(<>)
+{
+	push(@lines,$_);
+}
+
+# TM_SELECTION=1:10
+# TM_SELECTION=1:5-1:10
+
+# We only need beginning of the line up to the cursor
+$ENV{TM_SELECTION}=~/(\d+):(\d+)/;
+
+my $lineNo=$1;
+my $cursorPos=$2;
+my $line=substr($lines[$lineNo-1],0,$cursorPos-1);
+
+# Capture leading whitespace
+$line=~s/^(\s*)//;
+
+my $leading=$1;
+
+# Remove escaped characters
+$line=~s/\\.//g;
+
+# Remove strings
+$line=~s/"[^"]*"//g;
+$line=~s/'[^']*'//g;
+
+# Remove comments
+# TM_COMMENT_START=// 
+# TM_COMMENT_START_2=/*
+# TM_COMMENT_END_2=*/
+# TODO: remove comments
+
+# Now eliminate all but the pairs we are interested in
+$line=~s/[^\[\]{}\(\)]+//g;
+
+# Eliminate matching pairs
+while($line=~s/\{([^\}]*)\}/$1/) {}
+while($line=~s/\[([^\]]*)\]/$1/) {}
+while($line=~s/\(([^\)]*)\)/$1/) {}
+
+# Eliminate leading closing
+while($line=~s/^([^\{]*)\}/$1/) {}
+while($line=~s/^([^\[]*)\]/$1/) {}
+while($line=~s/^([^\(]*)\)/$1/) {}
+
+# Replace open with close
+$line=~s/\{/\}/g;
+$line=~s/\[/\]/g;
+$line=~s/\(/\)/g;
+
+# Reverse line
+$line=scalar reverse($line);
+
+if($line ne '')
+{
+	print "\n\t\$0\n$line";
+}
+else
+{
+	print "\n";
+}
+
+# TM_TAB_SIZE=4
