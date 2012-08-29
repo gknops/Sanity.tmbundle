@@ -281,8 +281,8 @@ sub reIndex {
 	
 	if($str=~m/$substr/)
 	{
-		dprint "'$substr' matched '$str'\n";
-		return ($-[0],$+[0]-$-[0]+1);
+		# dprint "'$substr' matched '$str'\n";
+		return ($-[0],$+[0]-$-[0]+1,$1,$2,$3,$4,$5);
 	}
 	
 	return (-1,0);
@@ -302,12 +302,15 @@ sub eliminateMatching {
 	
 	while(1)
 	{
-		my($indexLeft,$lenLeft)=reIndex($line,$left);
+		my($indexLeft,$lenLeft,$m1,$m2,$m3,$m4,$m5)=reIndex($line,$left);
 		
 		last if($indexLeft<0);
 		
+		my $lRight=$right;
+		$lRight=~s/\$1/$m1/g;
+		
 		my $pos=$indexLeft+$lenLeft;
-		my($indexRight,$lenRight)=reIndex($line,$right,$pos);
+		my($indexRight,$lenRight)=reIndex($line,$lRight,$pos);
 		
 		dprint "il: $indexLeft  ir: $indexRight\n";
 		
@@ -371,12 +374,15 @@ sub inverseLeftMatches {
 		{
 			dprint "Checking '$pair->[0]' at $i in '$line'\n";
 			
-			my($idxLeft,$lenLeft)=reIndex($line,$pair->[0],$i);
+			my($idxLeft,$lenLeft,$m1,$m2,$m3,$m4,$m5)=reIndex($line,$pair->[0],$i);
 			
 			if($idxLeft==$i)
 			{
-				dprint "Adding closer: '$pair->[1]'\n";
-				unshift(@matches,$pair->[2] // $pair->[1]);
+				my $lRight=$pair->[2] // $pair->[1];
+				$lRight=~s/\$1/$m1/g;
+				
+				dprint "Adding closer: '$lRight'\n";
+				unshift(@matches,$lRight);
 				$i+=$lenLeft;
 				last;
 			}

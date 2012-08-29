@@ -3,15 +3,15 @@
 <plist version="1.0">
 <dict>
 	<key>name</key>
-	<string>Disable Smart Typing pairs Shell Script</string>
+	<string>Disable Smart Typing pairs HTML</string>
 	<key>scope</key>
-	<string>source.shell</string>
+	<string>text.HTML</string>
 	<key>settings</key>
 	<dict>
 		<key>smartTypingPairs</key>
 		<array/>
 	</dict>
 	<key>uuid</key>
-	<string>880251EA-C681-472B-A75E-1A0250BBD8D3</string>
+	<string>60919637-46BB-472A-B90E-EB70E4BC13B0</string>
 </dict>
 </plist>

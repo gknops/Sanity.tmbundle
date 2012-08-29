@@ -17,14 +17,13 @@ process(
 	[	# pairs
 		['{', '}'],
 		['(', ')'],
-		['\\bif\\b', '\\bfi\\b', 'fi'],
-		['\\bcase\\b', '\\besac\\b', 'esac'],
+		['&lt;(\S+)[^\/&gt;]*&gt;','&lt;/$1&gt;'],
 	],
 	[	# string pairs
 		['"', '"'],
 		["'", "'"],
 	],
-	1	# Extend single-line comments
+	0	# Extend single-line comments
 );
 </string>
 	<key>input</key>
@@ -34,7 +33,7 @@ process(
 	<key>keyEquivalent</key>
 	<string></string>
 	<key>name</key>
-	<string>SmartReturn Shell Script</string>
+	<string>SmartReturn HTML</string>
 	<key>outputCaret</key>
 	<string>afterOutput</string>
 	<key>outputFormat</key>
@@ -42,9 +41,9 @@ process(
 	<key>outputLocation</key>
 	<string>replaceSelection</string>
 	<key>scope</key>
-	<string>source.shell</string>
+	<string>text.html</string>
 	<key>uuid</key>
-	<string>DC923F00-FADD-41CF-AADE-64872AE608CE</string>
+	<string>C0796A9C-178B-4525-97BD-BDE4ED82A7A4</string>
 	<key>version</key>
 	<integer>2</integer>
 </dict>

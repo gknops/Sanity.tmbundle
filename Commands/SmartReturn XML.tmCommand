@@ -4,8 +4,6 @@
 <dict>
 	<key>autoScrollOutput</key>
 	<true/>
-	<key>beforeRunningCommand</key>
-	<string>nop</string>
 	<key>command</key>
 	<string>#!/usr/bin/env perl
 
@@ -17,35 +15,28 @@ process(
 	[	# pairs
 		['{', '}'],
 		['(', ')'],
-		['\\bif\\b', '\\bfi\\b', 'fi'],
-		['\\bcase\\b', '\\besac\\b', 'esac'],
+		['&lt;(\S+)[^\/&gt;]*&gt;','&lt;/$1&gt;'],
 	],
 	[	# string pairs
 		['"', '"'],
 		["'", "'"],
 	],
-	1	# Extend single-line comments
+	0	# Extend single-line comments
 );
 </string>
 	<key>input</key>
 	<string>document</string>
-	<key>inputFormat</key>
-	<string>text</string>
 	<key>keyEquivalent</key>
 	<string></string>
 	<key>name</key>
-	<string>SmartReturn Shell Script</string>
-	<key>outputCaret</key>
-	<string>afterOutput</string>
+	<string>SmartReturn XML</string>
 	<key>outputFormat</key>
 	<string>snippet</string>
 	<key>outputLocation</key>
 	<string>replaceSelection</string>
 	<key>scope</key>
-	<string>source.shell</string>
+	<string>text.xml</string>
 	<key>uuid</key>
-	<string>DC923F00-FADD-41CF-AADE-64872AE608CE</string>
-	<key>version</key>
-	<integer>2</integer>
+	<string>30E85573-492A-42E7-BB02-F13274B7CE4A</string>
 </dict>
 </plist>
