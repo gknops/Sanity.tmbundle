@@ -277,13 +277,23 @@ sub reIndex {
 		return ($idx,1);
 	}
 	
-	$substr="^.{$pos}$substr" if($pos>0);
+	if($pos>0)
+	{
+		$substr="^.{$pos,}?($substr)";
+	}
+	else
+	{
+		$substr="($substr)";
+	}
+	
+	dprint "Check for '$substr' in '$str'\n";
 	
 	if($str=~m/$substr/)
 	{
-		# dprint "'$substr' matched '$str'\n";
-		return ($-[0],$+[0]-$-[0]+1,$1,$2,$3,$4,$5);
+		# print "'$substr' matched '$str' at $-[1] to $+[1]  2:'$2' 3:'$3'\n";
+		return ($-[1],$+[1]-$-[1],$2,$3,$4,$5,$6);
 	}
+	dprint "Not found!\n";
 	
 	return (-1,0);
 }
@@ -300,21 +310,29 @@ sub eliminateMatching {
 	
 	my $indexLeft;
 	
-	while(1)
+	my $linePos=0;
+	
+	while($linePos<length($line))
 	{
-		my($indexLeft,$lenLeft,$m1,$m2,$m3,$m4,$m5)=reIndex($line,$left);
+		my($indexLeft,$lenLeft,$m1,$m2,$m3,$m4,$m5)=reIndex($line,$left,$linePos);
 		
 		last if($indexLeft<0);
+		dprint "'$left' matched '$line' at $indexLeft  len $lenLeft ($m1)\n";
 		
 		my $lRight=$right;
 		$lRight=~s/\$1/$m1/g;
+		$lRight=quotemeta($lRight);
 		
 		my $pos=$indexLeft+$lenLeft;
 		my($indexRight,$lenRight)=reIndex($line,$lRight,$pos);
 		
-		dprint "il: $indexLeft  ir: $indexRight\n";
+		dprint "il: $indexLeft  ir: $indexRight  '$lRight'\n";
 		
-		last if($indexRight<0);
+		if($indexRight<0)
+		{
+			$linePos++;
+			next;
+		}
 		
 		if($deleteInside)
 		{

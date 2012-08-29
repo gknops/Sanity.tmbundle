@@ -17,13 +17,14 @@ process(
 	[	# pairs
 		['{', '}'],
 		['(', ')'],
-		['&lt;(\S+)[^\/&gt;]*&gt;','&lt;/$1&gt;'],
+		['&lt;(\w+)[^\/&gt;]*&gt;','&lt;/$1&gt;'],
 	],
 	[	# string pairs
 		['"', '"'],
 		["'", "'"],
 	],
-	0	# Extend single-line comments
+	0,	# Extend single-line comments
+	0
 );
 </string>
 	<key>input</key>
