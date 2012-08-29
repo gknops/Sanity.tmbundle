@@ -28,13 +28,13 @@ Examples (`|` denotes the cursor before and after):
 
 ### C-Like
 
-	{|
+	({|
 
 becomes
 
-	{
+	({
 		|
-	}
+	})
 
 ### Shell
 
@@ -49,11 +49,11 @@ becomes
 
 ### HTML, XML
 
-	<table key+"val">|
+	<table key+"val"><tr><td></td>|
 
 becomes
 
-	<table key+"val">
+	<table key+"val"><tr><td></td>
 		|
-	</table>
+	</tr></table>
 
