@@ -37,35 +37,28 @@
 	use strict;
 	
 	our $DEBUG=0;
-	
-	
-	sub ::dprint {
-		
-		if($DEBUG)
-		{
-			my $str=join(' ',@_);
-			
-			$str=~s/\0/\\0/g;
-			
-			print $str;
-		}
-	}
-	
-	# Define pairs
-	my @pairs=(
-		['{', '}'],
-		['[', ']'],
-		['(', ')'],
-	);
-	my @stringPairs=(
-		['"', '"'],
-		["'", "'"],
-	);
-	
+	our $pairs;
+	our $stringPairs;
 	
 ###############################################################################
 # Main
 ###############################################################################
+sub ::dprint {
+	
+	if($DEBUG)
+	{
+		my $str=join(' ',@_);
+		
+		$str=~s/\0/\\0/g;
+		
+		print $str;
+	}
+}
+sub process {
+	
+	my $pairs=shift;
+	my $stringPairs=shift;
+	$DEBUG=shift // 0;
 	
 	dprint "\$ENV{TM_SELECTION}: '$ENV{TM_SELECTION}'\n";
 	
@@ -111,7 +104,7 @@
 	$line=~s/\\.//g;
 	
 	# Remove strings
-	foreach my $pair (@stringPairs)
+	foreach my $pair (@$stringPairs)
 	{
 		$line=eliminateMatching($line,$pair,1);
 	}
@@ -167,11 +160,11 @@
 	$postSel=$2 // '';
 	
 	# Eliminate matching pairs on each side
-	foreach my $pair (@pairs)
+	foreach my $pair (@$pairs)
 	{
 		$preSel=eliminateMatching($preSel,$pair);
 	}
-	foreach my $pair (@pairs)
+	foreach my $pair (@$pairs)
 	{
 		$postSel=eliminateMatching($postSel,$pair);
 	}
@@ -180,7 +173,7 @@
 	
 	# Now eliminate matching across pre and post
 	$line="$preSel\0\0$postSel";
-	foreach my $pair (@pairs)
+	foreach my $pair (@$pairs)
 	{
 		$line=eliminateMatching($line,$pair);
 	}
@@ -197,7 +190,7 @@
 	dprint "insideMatch: $insideMatch\n";
 	
 	# Eliminate leading right-side items
-	foreach my $pair (@pairs)
+	foreach my $pair (@$pairs)
 	{
 		$line=eliminateLeadingRights($line,$pair);
 	}
@@ -205,7 +198,7 @@
 	
 	# Now find all left matches, and return matching rights in reverse order
 	# We also add the comment pairs here!
-	my @cPairs=@pairs;
+	my @cPairs=@$pairs;
 	push(@cPairs,@commentPairs);
 	my @closers=inverseLeftMatches($line,\@cPairs);
 	
@@ -221,10 +214,7 @@
 	{
 		print "\n";
 	}
-
-###############################################################################
-# Subroutines
-###############################################################################
+}
 sub eliminateMatching {
 	
 	my $line=shift;

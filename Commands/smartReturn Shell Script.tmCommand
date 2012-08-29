@@ -16,8 +16,9 @@ require "smartReturn.pl";
 process(
 	[	# pairs
 		['{', '}'],
-		['[', ']'],
 		['(', ')'],
+		['if', 'fi'],
+		['case', 'esac'],
 	],
 	[	# string pairs
 		['"', '"'],
@@ -32,7 +33,7 @@ process(
 	<key>keyEquivalent</key>
 	<string></string>
 	<key>name</key>
-	<string>SmartReturn C-like</string>
+	<string>smartReturn Shell Script</string>
 	<key>outputCaret</key>
 	<string>afterOutput</string>
 	<key>outputFormat</key>
@@ -40,9 +41,9 @@ process(
 	<key>outputLocation</key>
 	<string>replaceSelection</string>
 	<key>scope</key>
-	<string>source.c, source.c++, source.objc, source.objc++,source.perl,source.javascript</string>
+	<string>source.shell</string>
 	<key>uuid</key>
-	<string>54823DF3-0661-416B-9D74-366D369EA332</string>
+	<string>DC923F00-FADD-41CF-AADE-64872AE608CE</string>
 	<key>version</key>
 	<integer>2</integer>
 </dict>
