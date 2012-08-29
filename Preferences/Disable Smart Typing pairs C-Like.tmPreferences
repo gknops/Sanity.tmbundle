@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Disable Smart Typing pairs C-Like</string>
+	<key>scope</key>
+	<string>source.c, source.c++, source.objc, source.objc++,source.perl,source.javascript</string>
+	<key>settings</key>
+	<dict>
+		<key>smartTypingPairs</key>
+		<array/>
+	</dict>
+	<key>uuid</key>
+	<string>F759227D-D2D9-4770-B1AD-5F8EFA573751</string>
+</dict>
+</plist>
