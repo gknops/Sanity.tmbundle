@@ -117,9 +117,15 @@ sub process {
 	
 	my $preSel=undef;
 	my $postSel=undef;
+	my $nextLine=undef;
 	$idx=1;
 	while(<>)
 	{
+		if(defined($postSel))
+		{
+			$nextLine=$_;
+			last;
+		}
 		if($idx==$lineNo)
 		{
 			$preSel=substr($_,0,$cursorPos-1);
@@ -127,7 +133,7 @@ sub process {
 		if($idx==$lineNoEnd)
 		{
 			$postSel=substr($_,$cursorPosEnd-1);
-			last;
+			next;
 		}
 		$idx++;
 	}
@@ -138,7 +144,17 @@ sub process {
 	my $line="$preSel\0\0$postSel";
 	
 	# Remove leading whitespace
-	$line=~s/^\s*//;
+	$line=~s/^(\s*)//;
+	my $ws1=$1;
+	
+	# Does the next line have more whitespace?
+	# If yes we do not add closing items, assuming
+	# we are in an existing block.
+	$nextLine=~/^(\s*)/;
+	my $ws2=$1;
+	my $addClosers=1;
+	
+	$addClosers=0 if($ws2 && length($ws2)>length($ws1));
 	
 	# Process single line comment extension
 	if($extendSingleLineComments)
@@ -234,7 +250,14 @@ sub process {
 	
 	if($insideMatch || $closers ne '')
 	{
-		print "\n\t\$0\n$closers";
+		if($addClosers)
+		{
+			print "\n\t\$0\n$closers";
+		}
+		else
+		{
+			print "\n\t\$0";
+		}
 	}
 	else
 	{
