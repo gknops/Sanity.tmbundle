@@ -23,6 +23,7 @@ process(
 		['"', '"'],
 		["'", "'"],
 	],
+	1	# Extend single-line comments
 );
 </string>
 	<key>input</key>
@@ -40,7 +41,7 @@ process(
 	<key>outputLocation</key>
 	<string>replaceSelection</string>
 	<key>scope</key>
-	<string>source.c, source.c++, source.objc, source.objc++,source.perl,source.javascript</string>
+	<string>source.c, source.c++, source.objc, source.objc++, source.perl, source.javascript</string>
 	<key>uuid</key>
 	<string>54823DF3-0661-416B-9D74-366D369EA332</string>
 	<key>version</key>

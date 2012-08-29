@@ -17,13 +17,14 @@ process(
 	[	# pairs
 		['{', '}'],
 		['(', ')'],
-		['if', 'fi'],
-		['case', 'esac'],
+		['\\bif\\b', '\\bfi\\b', 'fi'],
+		['\\bcase\\b', '\\besac\\b', 'esac'],
 	],
 	[	# string pairs
 		['"', '"'],
 		["'", "'"],
 	],
+	1	# Extend single-line comments
 );
 </string>
 	<key>input</key>

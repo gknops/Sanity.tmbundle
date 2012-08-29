@@ -58,9 +58,49 @@ sub process {
 	
 	my $pairs=shift;
 	my $stringPairs=shift;
+	my $extendSingleLineComments=shift;
+	
 	$DEBUG=shift // 0;
 	
 	dprint "\$ENV{TM_SELECTION}: '$ENV{TM_SELECTION}'\n";
+	
+	# Preprocess comment definitions, examples:
+	# 	TM_COMMENT_START=// 
+	# 	TM_COMMENT_START_2=/*
+	# 	TM_COMMENT_END_2=*/
+	my $startTemplate='TM_COMMENT_START_';
+	my $endTemplate='TM_COMMENT_END_';
+	my $start='TM_COMMENT_START';
+	my $end='TM_COMMENT_END';
+	my @commentPairs=();
+	my @lineComments=();
+	my $idx=1;
+	
+	while(exists($ENV{$start}))
+	{
+		my $cStart=$ENV{$start};
+		
+		$cStart=~s/^\s+//;
+		$cStart=~s/\s+$//;
+		
+		if(exists($ENV{$end}))
+		{
+			my $cEnd=$ENV{$end};
+			$end=~s/^\s+//;
+			$end=~s/\s+$//;
+			
+			my @a=(quotemeta($cStart),quotemeta($cEnd));
+			push(@commentPairs,\@a);
+		}
+		else
+		{
+			push(@lineComments,$cStart);
+		}
+		
+		$idx++;
+		$start="$startTemplate$idx";
+		$end="$endTemplate$idx";
+	}
 	
 	# We need beginning of the selected line up to the cursor
 	$ENV{TM_SELECTION}=~/(\d+):(\d+)/;
@@ -77,7 +117,7 @@ sub process {
 	
 	my $preSel=undef;
 	my $postSel=undef;
-	my $idx=1;
+	$idx=1;
 	while(<>)
 	{
 		if($idx==$lineNo)
@@ -100,6 +140,20 @@ sub process {
 	# Remove leading whitespace
 	$line=~s/^\s*//;
 	
+	# Process single line comment extension
+	if($extendSingleLineComments)
+	{
+		foreach my $lineComment (@lineComments)
+		{
+			if(index($line,$lineComment)==0)
+			{
+				print "\n$lineComment \$0";
+				
+				return;
+			}
+		}
+	}
+	
 	# Remove escaped characters
 	$line=~s/\\.//g;
 	
@@ -112,34 +166,6 @@ sub process {
 	dprint "after removing strings: '$line'\n";
 	
 	# Remove comments
-	# TM_COMMENT_START=// 
-	# TM_COMMENT_START_2=/*
-	# TM_COMMENT_END_2=*/
-	my $startTemplate='TM_COMMENT_START_';
-	my $endTemplate='TM_COMMENT_END_';
-	my $start='TM_COMMENT_START';
-	my $end='TM_COMMENT_END';
-	my @commentPairs=();
-	my @lineComments=();
-	$idx=1;
-	
-	while(exists($ENV{$start}))
-	{
-		if(exists($ENV{$end}))
-		{
-			my @a=($ENV{$start},$ENV{$end});
-			push(@commentPairs,\@a);
-		}
-		else
-		{
-			push(@lineComments,$ENV{$start});
-		}
-		
-		$idx++;
-		$start="$startTemplate$idx";
-		$end="$endTemplate$idx";
-	}
-	
 	foreach my $lineComment (@lineComments)
 	{
 		my $idx=index($line,$lineComment);
@@ -215,6 +241,29 @@ sub process {
 		print "\n";
 	}
 }
+sub reIndex {
+	
+	my $str=shift;
+	my $substr=shift;
+	my $pos=shift // 0;
+	
+	if(length($substr)==1)
+	{
+		my $idx=index($str,$substr,$pos);
+		
+		return ($idx,1);
+	}
+	
+	$substr="^.{$pos}$substr" if($pos>0);
+	
+	if($str=~m/$substr/)
+	{
+		dprint "'$substr' matched '$str'\n";
+		return ($-[0],$+[0]-$-[0]+1);
+	}
+	
+	return (-1,0);
+}
 sub eliminateMatching {
 	
 	my $line=shift;
@@ -228,10 +277,14 @@ sub eliminateMatching {
 	
 	my $indexLeft;
 	
-	while(($indexLeft=index($line,$left))>=0)
+	while(1)
 	{
-		my $pos=$indexLeft+length($left);
-		my $indexRight=index($line,$right,$pos);
+		my($indexLeft,$lenLeft)=reIndex($line,$left);
+		
+		last if($indexLeft<0);
+		
+		my $pos=$indexLeft+$lenLeft;
+		my($indexRight,$lenRight)=reIndex($line,$right,$pos);
 		
 		dprint "il: $indexLeft  ir: $indexRight\n";
 		
@@ -239,16 +292,16 @@ sub eliminateMatching {
 		
 		if($deleteInside)
 		{
-			my $idx=index($line,"\0",$indexLeft);
+			my($idx,$len)=reIndex($line,"\0",$indexLeft);
 			my $replacement='';
 			$replacement="\0\0" if($idx>0 && $idx<$indexRight);
 			
-			substr($line,$indexLeft,$indexRight+length($right)-$indexLeft)=$replacement;
+			substr($line,$indexLeft,$indexRight+$lenRight-$indexLeft)=$replacement;
 		}
 		else
 		{
-			substr($line,$indexRight,length($right))='';
-			substr($line,$indexLeft,length($left))='';
+			substr($line,$indexRight,$lenRight)='';
+			substr($line,$indexLeft,$lenLeft)='';
 		}
 	}
 	
@@ -264,15 +317,15 @@ sub eliminateLeadingRights {
 	
 	while(1)
 	{
-		my $indexRight=index($line,$right);
+		my($indexRight,$lenRight)=reIndex($line,$right);
 		
 		last if($indexRight<0);
 		
-		my $indexLeft=index($line,$left);
+		my($indexLeft,$lenLeft)=reIndex($line,$left);
 		
 		if($indexLeft<0 || $indexLeft>$indexRight)
 		{
-			substr($line,$indexRight,length($right))='';
+			substr($line,$indexRight,$lenRight)='';
 		}
 	}
 	
@@ -294,11 +347,14 @@ sub inverseLeftMatches {
 		foreach my $pair (@$pairs)
 		{
 			dprint "Checking '$pair->[0]' at $i in '$line'\n";
-			if(index($line,$pair->[0],$i)==$i)
+			
+			my($idxLeft,$lenLeft)=reIndex($line,$pair->[0],$i);
+			
+			if($idxLeft==$i)
 			{
 				dprint "Adding closer: '$pair->[1]'\n";
-				unshift(@matches,$pair->[1]);
-				$i+=length($pair->[0]);
+				unshift(@matches,$pair->[2] // $pair->[1]);
+				$i+=$lenLeft;
 				last;
 			}
 		}
